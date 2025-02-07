@@ -58,7 +58,7 @@ class Movement:
         """
         Move the robot with the given velocity vector and angular velocity.
         """
-        print(vy, vy, omega)
+        print(vx, vy, omega)
         try:
             self.orientation += omega
             for motor in self.motors:

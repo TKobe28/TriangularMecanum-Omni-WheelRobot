@@ -1,0 +1,86 @@
+body {
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #040712;
+    font-family: Arial, sans-serif;
+}
+
+.video-container {
+    position: relative;
+    width: 100%;
+    max-width: 640px;
+    margin: 20px 0;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(1,1,1,0.2);
+}
+
+#videoFeed {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.controls {
+    text-align: center;
+    margin-top: 20px;
+    display: grid;
+    grid-template-areas:
+        ". up ."
+        "left stop right"
+        ". down .";
+    gap: 10px;
+}
+
+.control-btn {
+    padding: 15px 25px;
+    border: none;
+    border-radius: 5px;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    min-width: 80px;
+}
+
+.control-btn:hover {
+    background-color: #45a049;
+}
+
+#btnUp { grid-area: up; }
+#btnLeft { grid-area: left; }
+#btnStop { grid-area: stop; }
+#btnRight { grid-area: right; }
+#btnDown { grid-area: down; }
+
+.speed-control {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.speed-control label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: white;
+}
+
+.speed-control input[type="range"] {
+    width: 200px;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    .control-btn {
+        padding: 10px 15px;
+        font-size: 14px;
+        min-width: 60px;
+    }
+}
