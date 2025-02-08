@@ -1,4 +1,4 @@
-from flask import Flask, Response, request, jsonify, render_template
+from flask import Flask, Response, request, jsonify, render_template, redirect
 import cv2
 import typing
 from functools import wraps
@@ -67,13 +67,22 @@ def requires_auth(access_level=0):
         @wraps(f)
         def decorated(*args, **kwargs):
             auth = request.authorization
-            if not auth or not check_auth(auth.username, auth.password):
+            if not auth or not check_auth(auth.username, auth.password, access_level):
                 if auth:
                     print(auth.username, auth.password)
                 return authenticate()
             return f(*args, **kwargs)
         return decorated
     return decorator
+
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    return Response(
+        'Logged out successfully.',
+        401,
+        {'WWW-Authenticate': 'Basic realm="Login Required"'}
+    )
 
 
 @app.route('/video_feed')
