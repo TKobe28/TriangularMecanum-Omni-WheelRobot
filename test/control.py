@@ -1,7 +1,7 @@
 from flask import Flask, Response, request, jsonify, render_template, redirect
 import cv2
 import typing
-from functools import wraps
+from functools import wraps, cache
 import hashlib
 test = True
 if not test:
@@ -12,6 +12,7 @@ if not test:
     camera.configure(camera_config)
     camera.start()
 
+hashing_function = cache(hashlib.sha256)  # possible memory overflow uwu
 # Initialize Flask app and Picamera2
 app = Flask(__name__)
 
@@ -45,7 +46,7 @@ with open("./secret", "r") as f:
 
 def check_auth(username: str, password: str, access_level: int = 0):
     """Check if a username/password combination is valid."""
-    password = hashlib.sha256(password.encode(), usedforsecurity=True).hexdigest()
+    password = hashing_function(password.encode(), usedforsecurity=True).hexdigest()
     for _username, _password, _access_level in users:
         if _username == username and _password == password and _access_level <= access_level:
             return True
