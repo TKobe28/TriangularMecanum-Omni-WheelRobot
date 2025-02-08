@@ -52,9 +52,8 @@ body {
 
 #btnUp { grid-area: up; }
 #btnLeft { grid-area: left; }
-#btnStop { grid-area: stop; }
 #btnRight { grid-area: right; }
-#btnDown { grid-area: down; }
+#btnDown { grid-area: ; }
 
 .speed-control {
     margin-top: 20px;

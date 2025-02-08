@@ -1,4 +1,5 @@
-from flask import Flask, Response, request, jsonify, render_template, redirect
+from flask import Flask, Response, request, jsonify, render_template, send_from_directory
+import os
 import cv2
 import typing
 from functools import wraps, cache
@@ -116,6 +117,12 @@ def control():
 def index():
     """Simple HTML page to display the video feed."""
     return render_template("index.html")
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
 if __name__ == '__main__':
