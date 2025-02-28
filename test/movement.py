@@ -63,7 +63,6 @@ class Movement:
         Maintains the correct speed ratio while ensuring all speeds stay in [-100, 100].
         """
         print(f"Moving with vx={vx}, vy={vy}, omega={omega}")
-        
         try:
             self.orientation += omega
             speeds = []
