@@ -3,8 +3,9 @@ import atexit
 import numpy as np
 import math
 import traceback
+import time
 
-test = True
+test = False
 if not test:
     import RPi.GPIO as GPIO
     GPIO.setmode(GPIO.BCM)
@@ -20,9 +21,10 @@ else:
 
 class Movement:
     class Motor:
-        pwm_freq = 1000
+        pwm_freq = 5000
 
-        def __init__(self, pins: [int], angle: float):
+        def __init__(self, pins: [int], angle: float, id=69):
+            self.id = id
             self.pins = pins
             self.pwms = []
             self.angle = angle
@@ -35,38 +37,62 @@ class Movement:
 
         def set_speed(self, speed: float):
             self.speed = speed
+            print(self.id, speed)
             if speed > 0:
-                self.pwms[0].ChangeDutyCycle(speed)
+                self.pwms[0].ChangeDutyCycle(abs(speed))
                 self.pwms[1].ChangeDutyCycle(0)
             elif speed < 0:
                 self.pwms[0].ChangeDutyCycle(0)
-                self.pwms[1].ChangeDutyCycle(speed)
+                self.pwms[1].ChangeDutyCycle(abs(speed))
             else:
-                self.pwms[0].ChangeDutyCycle(speed)
-                self.pwms[1].ChangeDutyCycle(speed)
+                self.pwms[0].ChangeDutyCycle(abs(speed))
+                self.pwms[1].ChangeDutyCycle(abs(speed))
 
     def __init__(self):
 
         self.motors = [
-            self.Motor([38, 40], math.radians(45)),
-            self.Motor([28, 26], math.radians(165)),
-            self.Motor([24, 22], math.radians(285))
+            self.Motor([20, 21], math.radians(45), 1),
+            self.Motor([25, 8], math.radians(165), 2),
+            self.Motor([7, 1], math.radians(285), 3)
         ]
         self.orientation = 0
 
     def move_robot(self, vx, vy, omega):
         """
         Move the robot with the given velocity vector and angular velocity.
+        Maintains the correct speed ratio while ensuring all speeds stay in [-100, 100].
         """
-        print(vx, vy, omega)
+        print(f"Moving with vx={vx}, vy={vy}, omega={omega}")
         try:
             self.orientation += omega
+            speeds = []
+
+            # Compute raw speeds
             for motor in self.motors:
                 speed = vx * math.cos(motor.angle) + vy * math.sin(motor.angle) + omega
+                speeds.append(speed)
+
+            # Find the maximum absolute speed
+            max_speed = max(abs(s) for s in speeds)
+
+            # Scale speeds if the max is over 100
+            if max_speed > 100:
+                scaling_factor = 100 / max_speed
+                speeds = [s * scaling_factor for s in speeds]
+
+            # Set the adjusted speeds
+            for motor, speed in zip(self.motors, speeds):
                 motor.set_speed(speed)
+
             return 0, ""
+        
         except Exception as e:
             return -1, traceback.format_exc()
+
+
+    def test_movement(self):
+        self.move_robot(6, 6, 50)
+        time.sleep(10)
 
 
 if test:
@@ -147,4 +173,4 @@ if test:
 # Run the test
 if __name__ == "__main__":
     movement = Movement()
-
+    movement.test_movement()

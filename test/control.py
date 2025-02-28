@@ -102,12 +102,13 @@ control_function: typing.Callable = lambda vx, vy, omega: (0, "")
 def control():
     data = request.json
     if not data or not all(k in data for k in ('vx', 'vy', 'omega')):
+        print("Nono request")
         return jsonify({"error": "Missing parameters"}), 400
 
     vx = data['vx']
     vy = data['vy']
     omega = data['omega']
-
+    print("now control ihihiiha")
     result = control_function(vx, vy, omega)
     return jsonify(result)
 
@@ -126,4 +127,4 @@ def favicon():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.run(host='0.0.0.0', port=5000, debug=True)
