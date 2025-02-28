@@ -4,14 +4,17 @@ import cv2
 import typing
 from functools import wraps, cache
 import hashlib
-test = True
+import time
+test = False
 if not test:
     from picamera2 import Picamera2
 
     camera = Picamera2()
-    camera_config = camera.create_video_configuration()
+    camera_config = camera_config = camera.create_still_configuration({"size":(32, 18)})
+
     camera.configure(camera_config)
     camera.start()
+    camera.capture_file("test.png")
 
 hashing_function = cache(hashlib.sha256)  # possible memory overflow uwu
 # Initialize Flask app and Picamera2
@@ -21,10 +24,12 @@ if not test:
     def generate_frames():
         """Yields frames from the camera as JPEG-encoded images."""
         while True:
+            print("capturing")
             frame = camera.capture_array()
             _, buffer = cv2.imencode('.jpg', frame)
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
+            time.sleep(0.1)
 else:
     with open("goofy_ahh.jpg", "rb") as f:
         image = f.read()

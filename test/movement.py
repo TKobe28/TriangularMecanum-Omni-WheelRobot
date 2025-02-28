@@ -21,7 +21,7 @@ else:
 
 class Movement:
     class Motor:
-        pwm_freq = 5000
+        pwm_freq = 1000
 
         def __init__(self, pins: [int], angle: float, id=69):
             self.id = id
