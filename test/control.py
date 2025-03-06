@@ -1,59 +1,15 @@
-import random
-import time
 from flask import Flask, Response, request, jsonify, render_template, send_from_directory
 import os
-import cv2
 import typing
 from functools import wraps, cache
 import hashlib
-
-try:
-    from picamera2 import Picamera2
-
-    test = False
-
-except ModuleNotFoundError:
-    print("Picamera not installed, running in test mode")
-    test = True
-
-if test:
-    camera = cv2.VideoCapture(0)
-    camera.read()  # to init faster
-else:
-    camera = Picamera2()
-    camera_config = camera.create_video_configuration()
-    camera.configure(camera_config)
-    camera.start()
+import camera
 
 hashing_function = cache(hashlib.sha256)  # possible memory overflow uwu
 app = Flask(__name__)
 
-if not test:
-    def generate_frames():
-        """Yields frames from the camera as JPEG-encoded images."""
-        while True:
-            frame = camera.capture_array()
-            _, buffer = cv2.imencode('.jpg', frame)
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
-else:
-    with open("goofy_ahh.jpg", "rb") as f:
-        goofy_image = f.read()
-
-    def generate_frames():
-        while True:
-            success, frame = camera.read()
-            if not success:
-                print("could not capture frame.")
-                yield (b'--frame\r\n'
-                       b'Content-Type: image/jpeg\r\n\r\n' + goofy_image + b'\r\n')
-            ret, frame = cv2.imencode(".jpg", frame)
-            frame = frame.tobytes()
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-
-users: list[tuple[
-    str, str, int]] or [] = []  # [(username1, pass1, access_level1), (username2, pass2, access_level1), ...]
+# users
+users: list[tuple[str, str, int]] or [] = []  # [(username1, pass1, access_level1), (username2, pass2, access_level1), ...]
 with open("./secret", "r") as f:
     it = iter(f)
 
@@ -111,7 +67,7 @@ def logout():
 @requires_auth(access_level=1)
 def video_feed():
     """Endpoint that serves the video feed."""
-    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(camera.video_stream_generator(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 control_function: typing.Callable = lambda vx, vy, omega: (0, "")
@@ -142,8 +98,7 @@ def index():
 
 @app.route('/favicon.ico')
 def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'),
-                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
 if __name__ == '__main__':
