@@ -18,7 +18,7 @@ const speedValue = document.getElementById('speedValue');
 // Update speed multiplier when slider changes
 speedSlider.addEventListener('input', () => {
     speedMultiplier = parseFloat(speedSlider.value);
-    speedValue.textContent = `${speedMultiplier.toFixed(1)}x`;
+    speedValue.textContent = `${speedMultiplier.toFixed(0)}x`;
 });
 
 // Handle keyboard input

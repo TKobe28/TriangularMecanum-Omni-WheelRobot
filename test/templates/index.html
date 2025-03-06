@@ -3,6 +3,7 @@
 <head>
     <title>Avtoček control</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
     <div style="topPart">
@@ -16,15 +17,15 @@
         <button class="control-btn" id="btnUp" data-vx="1">↑ W</button>
         <button class="control-btn" id="btnLeft" data-vy="1">← A</button>
         <button class="control-btn" id="btnRight" data-vy="-1">→ D</button>
-        <button class="control-btn" id="btnDown" data-vx="-1">↓ S</button>
         <button class="control-btn" data-omega="-1">↶ Left</button>
         <button class="control-btn" data-omega="1">↷ Right</button>
+        <button class="control-btn" id="btnDown" data-vx="-1">↓ S</button>
     </div>
 
     <div class="speed-control">
         <label for="speedSlider">Speed Multiplier:</label>
-        <input type="range" id="speedSlider" min="1" max="100" step="1" value="1">
-        <span id="speedValue" style="color: white;">1.0x</span>
+        <input type="range" id="speedSlider" min="20" max="100" step="1" value="1">
+        <span id="speedValue" style="color: white;">1x</span>
     </div>
 
     <script src="{{ url_for('static', filename='js/index.js') }}"></script>
