@@ -139,30 +139,56 @@ if test:
                 _, img = camera.read()
 
                 # encode as a jpeg image and return it
-                yield cv2.imencode('.jpg', img)[1].tobytes()
+                yield cv2.imencode('.jpg', img, params=[cv2.IMWRITE_JPEG_QUALITY, 50])[1].tobytes()
 else:
     # Picamera2
     class Camera(BaseCamera):
         @staticmethod
         def frames():
             with Picamera2() as camera:
-                camera_config = camera.create_video_configuration(main={"size": (640, 480)})
-                camera.configure(camera_config)
+                config = camera.create_video_configuration(
+                    main={"size": (640, 480)},
+                    raw={"size": (640, 480)},  # Match sensor readout to output
+                    encode="main",
+                    queue=False  # Critical for low latency
+                )
+                camera.configure(config)
+
+                # from libcamera import controls
+                # # Disable auto-exposure and other latency-inducing features
+                # controls = {
+                #     "AfMode": controls.AfModeEnum.Manual,
+                #     "ExposureTime": 10000,  # Lock exposure if possible
+                #     "AwbMode": controls.AwbModeEnum.Indoor  # Lock white balance
+                # }
+                # picam2.set_controls(controls)
+
                 camera.start()
 
-                # let camera warm up
-                time.sleep(2)
+                ## let camera warm up
+                #time.sleep(2)
 
-                stream = io.BytesIO()
+                #stream = io.BytesIO()
                 try:
                     while True:
-                        camera.capture_file(stream, format='jpeg')
-                        stream.seek(0)
-                        yield stream.read()
+                        buffer = camera.capture_array("raw")  # Raw Bayer data
 
-                        # reset stream for next frame
-                        stream.seek(0)
-                        stream.truncate()
+                        # Fastest possible JPEG conversion
+                        _, jpeg = cv2.imencode(
+                            ".jpg",
+                            buffer,
+                            params=[cv2.IMWRITE_JPEG_QUALITY, 50]
+                        )
+                        if not _:
+                            continue
+                        return jpeg.tobytes()
+                        # camera.capture_file(stream, format='jpeg')
+                        # stream.seek(0)
+                        # yield stream.read()
+
+                        # # reset stream for next frame
+                        # stream.seek(0)
+                        # stream.truncate()
                 finally:
                     camera.stop()
 
