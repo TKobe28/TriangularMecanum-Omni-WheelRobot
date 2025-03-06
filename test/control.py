@@ -1,3 +1,5 @@
+import random
+import time
 from flask import Flask, Response, request, jsonify, render_template, send_from_directory
 import os
 import cv2
@@ -7,20 +9,23 @@ import hashlib
 
 try:
     from picamera2 import Picamera2
+
     test = False
 
 except ModuleNotFoundError:
     print("Picamera not installed, running in test mode")
     test = True
 
-if not test:
+if test:
+    camera = cv2.VideoCapture(0)
+    camera.read()  # to init faster
+else:
     camera = Picamera2()
     camera_config = camera.create_video_configuration()
     camera.configure(camera_config)
     camera.start()
 
 hashing_function = cache(hashlib.sha256)  # possible memory overflow uwu
-# Initialize Flask app and Picamera2
 app = Flask(__name__)
 
 if not test:
@@ -33,13 +38,22 @@ if not test:
                    b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
 else:
     with open("goofy_ahh.jpg", "rb") as f:
-        image = f.read()
+        goofy_image = f.read()
 
     def generate_frames():
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + image + b'\r\n')
+        while True:
+            success, frame = camera.read()
+            if not success:
+                print("could not capture frame.")
+                yield (b'--frame\r\n'
+                       b'Content-Type: image/jpeg\r\n\r\n' + goofy_image + b'\r\n')
+            ret, frame = cv2.imencode(".jpg", frame)
+            frame = frame.tobytes()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
-users: list[tuple[str, str, int]] or [] = []  # [(username1, pass1, access_level1), (username2, pass2, access_level1), ...]
+users: list[tuple[
+    str, str, int]] or [] = []  # [(username1, pass1, access_level1), (username2, pass2, access_level1), ...]
 with open("./secret", "r") as f:
     it = iter(f)
 
@@ -133,4 +147,4 @@ def favicon():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False)
