@@ -4,10 +4,16 @@ import cv2
 import typing
 from functools import wraps, cache
 import hashlib
-test = True
-if not test:
-    from picamera2 import Picamera2
 
+try:
+    from picamera2 import Picamera2
+    test = False
+
+except ModuleNotFoundError:
+    print("Picamera not installed, running in test mode")
+    test = True
+
+if not test:
     camera = Picamera2()
     camera_config = camera.create_video_configuration()
     camera.configure(camera_config)

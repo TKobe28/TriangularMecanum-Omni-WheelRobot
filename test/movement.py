@@ -5,9 +5,9 @@ import math
 import traceback
 import time
 
-test = False
-if not test:
+try:
     import RPi.GPIO as GPIO
+    test = False
     GPIO.setmode(GPIO.BCM)
 
 
@@ -15,7 +15,9 @@ if not test:
     def clear_GPIO():
         GPIO.cleanup()
 
-else:
+except ModuleNotFoundError:
+    print("Could not import movement libraries, running in test mode.")
+    test = True
     import matplotlib.pyplot as plt
 
 
