@@ -1,0 +1,13 @@
+[Unit]
+Description=Server service - starts and restarts the python program. 
+After=network.target
+
+[Service]
+WorkingDirectory=/home/its/test
+ExecStart=/usr/bin/python3 /home/its/test/main.py
+Restart=always
+StandardOutput=append:/home/its/test/output.log
+StandardError=append:/home/its/test/error.log
+
+[Install]
+WantedBy=multi-user.target
