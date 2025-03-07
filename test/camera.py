@@ -171,7 +171,7 @@ else:
                 #stream = io.BytesIO()
                 try:
                     while True:
-                        buffer = camera.capture_array("raw")  # Raw Bayer data
+                        buffer = camera.capture_array()
 
                         # Fastest possible JPEG conversion
                         _, jpeg = cv2.imencode(
@@ -181,7 +181,7 @@ else:
                         )
                         if not _:
                             continue
-                        return jpeg.tobytes()
+                        yield jpeg.tobytes()
                         # camera.capture_file(stream, format='jpeg')
                         # stream.seek(0)
                         # yield stream.read()
