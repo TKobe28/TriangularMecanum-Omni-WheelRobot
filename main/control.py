@@ -1,3 +1,6 @@
+import multiprocessing
+import time
+
 from flask import Flask, Response, request, jsonify, render_template, send_from_directory
 import os
 import typing
@@ -94,6 +97,28 @@ def control():
 def index():
     """Simple HTML page to display the video feed."""
     return render_template("index.html")
+
+
+wifi_semaphore = multiprocessing.Semaphore()  # todo: test!
+@app.route('/wifi')
+@requires_auth(access_level=0)
+def wifi_page():
+    try:
+        wifi_semaphore.acquire()
+        return render_template("wifi.html")
+    finally:
+        wifi_semaphore.release()
+
+
+@app.route("/wifi/status")
+#@requires_auth(1)
+def wifi_status():
+    time.sleep(1)
+    return jsonify({
+        'connected': False,
+        'internet': False,
+        'network name': None
+    })
 
 
 @app.route('/favicon.ico')

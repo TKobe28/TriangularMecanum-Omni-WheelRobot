@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>wifi setup</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div class="topnav">
+        <a>WIFI SETUP</a>
+        <button id="logoutBtn">Logout</button>
+        <button onclick="window.location.href='../'">home</button>
+    </div>
+    <div class="center">
+        <div style="align-items: center;" id="loader">
+            <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+        </div>
+        <div id="content"></div>
+    </div>
+    <script src="{{ url_for('static', filename='js/wifi_status.js') }}"></script>
+</body>
+</html>
