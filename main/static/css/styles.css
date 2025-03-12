@@ -1,17 +1,21 @@
 body {
     margin: 0;
+    align-items: center;
+    background-color: #040712;
+    font-family: Arial, sans-serif;
+    color: green;
+}
+
+.main {
     padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: #040712;
-    font-family: Arial, sans-serif;
 }
 
 .video-container {
     position: relative;
     width: 100%;
-    max-width: 640px;
     margin: 20px 0;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(1,1,1,0.2);
@@ -70,10 +74,45 @@ body {
     width: 200px;
 }
 
-.topPart: {
-    position: sticky;
-    top: 0;
+.topnav {
+  margin: 0;
+  overflow: hidden;
+  background-color: #333;
+  align-items: center;
+  border-style: none none solid none
 }
+
+.topnav button {
+  height: 100%;
+  width: 150px;
+  float: right;
+  color: black;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+  border: none;
+}
+
+.topnav button:hover {
+  background-color: #d0d0d0;
+  color: black;
+}
+
+.topnav button:active {
+  background-color: #04AA6D;
+  color: white;
+}
+
+.topnav a {
+  float: center;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 50px;
+}
+
+
 /* Responsive design for smaller screens */
 @media (max-width: 600px) {
     body {

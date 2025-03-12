@@ -1,9 +1,14 @@
 import movement
 import control
 from sys import platform
-if platform.uname().system.lower()=='linux':
-    print("Detected Linux, Preparing gunicorn")        
-    import gunicorn.app.base
+do_gunicorn = False
+if platform == 'linux':
+    print("Detected Linux, Preparing gunicorn")
+    try:
+        import gunicorn.app.base
+    except ModuleNotFoundError:
+        print("Gunicorn not installed!")
+        do_gunicorn = False
 
     class StandaloneApplication(gunicorn.app.base.BaseApplication):
         def __init__(self, app, options=None):
@@ -25,7 +30,7 @@ if __name__ == "__main__":
     movement_ = movement.Movement()
     control.control_function = movement_.move_robot
 
-    if platform.uname().system.lower()=='linux':
+    if do_gunicorn and platform == 'linux':
         options = {
             'bind': '%s:%s' % ('0.0.0.0', '5000'),
             'workers': 2,
