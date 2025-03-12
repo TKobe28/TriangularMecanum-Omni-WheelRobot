@@ -23,7 +23,7 @@ async function fetchWifiStatus() {
 function displayStatus(data) {
     const content = document.getElementById('content');
     content.innerHTML = `
-        <div class="status-card">
+        <div class="card">
             <h2>WiFi Status</h2>
             <p><strong>Connected:</strong> <span class="${data.connected ? 'connected' : 'not-connected'}">${data.connected ? 'Yes' : 'No'}</span></p>
             <p><strong>Internet Access:</strong> <span class="${data.internet ? 'connected' : 'not-connected'}">${data.internet ? 'Yes' : 'No'}</span></p>

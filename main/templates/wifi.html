@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>wifi setup</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/wifi.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
@@ -12,12 +13,30 @@
         <button id="logoutBtn">Logout</button>
         <button onclick="window.location.href='../'">home</button>
     </div>
-    <div class="center">
+    <div class="center" style="padding: 100px;">
+        <div class="card">
+            <p>Connect to a wifi</p>
+            <div class="wifi-form">
+              <label for="ssid">SSID:</label>
+              <input type="text" id="ssid" name="ssid" >
+
+              <label for="password">Password:</label>
+              <input type="password" id="password" name="password">
+
+              <label class="switch">
+                <input type="checkbox" id="toggle-switch">
+                <span class="slider"></span>
+              </label>
+              <p>If this is marked to off, a hotspot will turn on instead.</p>
+              <button id="confirm-btn" disabled>Confirm</button>
+            </div>
+        </div>
         <div style="align-items: center;" id="loader">
             <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
         </div>
         <div id="content"></div>
     </div>
     <script src="{{ url_for('static', filename='js/wifi_status.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/wifi.js') }}"></script>
 </body>
 </html>

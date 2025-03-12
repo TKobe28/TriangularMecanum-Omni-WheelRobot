@@ -1,12 +1,12 @@
 import multiprocessing
 import time
-
 from flask import Flask, Response, request, jsonify, render_template, send_from_directory
 import os
 import typing
 from functools import wraps, cache
 import hashlib
 import camera
+import wifi
 
 hashing_function = cache(hashlib.sha256)  # possible memory overflow uwu
 app = Flask(__name__)
@@ -111,7 +111,7 @@ def wifi_page():
 
 
 @app.route("/wifi/status")
-#@requires_auth(1)
+@requires_auth(0)
 def wifi_status():
     time.sleep(1)
     return jsonify({
@@ -119,6 +119,16 @@ def wifi_status():
         'internet': False,
         'network name': None
     })
+
+
+@app.route('/wifi/connect', methods=['POST'])
+@requires_auth(0)
+def connect_wifi():  # todo: security, check if ok, return actual status (though unnecessary as the sender disconnects anyway)
+    if request.json['hotspot'] == True:
+        wifi.start_hotspot(request.json['ssid'], request.json['password'])
+    else:
+        wifi.connect_to_wifi(request.json['ssid'], request.json['password'])
+    return Response(status=200)
 
 
 @app.route('/favicon.ico')
