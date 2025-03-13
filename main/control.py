@@ -6,7 +6,7 @@ import typing
 from functools import wraps, cache
 import hashlib
 import camera
-import wifi
+import wifi_config
 
 hashing_function = cache(hashlib.sha256)  # possible memory overflow uwu
 app = Flask(__name__)
@@ -125,9 +125,9 @@ def wifi_status():
 @requires_auth(0)
 def connect_wifi():  # todo: security, check if ok, return actual status (though unnecessary as the sender disconnects anyway)
     if request.json['hotspot'] == True:
-        wifi.start_hotspot(request.json['ssid'], request.json['password'])
+        wifi_config.start_hotspot(request.json['ssid'], request.json['password'])
     else:
-        wifi.connect_to_wifi(request.json['ssid'], request.json['password'])
+        wifi_config.connect_to_wifi(request.json['ssid'], request.json['password'])
     return Response(status=200)
 
 
