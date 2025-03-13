@@ -125,10 +125,10 @@ def wifi_status():
 @requires_auth(0)
 def connect_wifi():  # todo: security, check if ok, return actual status (though unnecessary as the sender disconnects anyway)
     if request.json['hotspot'] == True:
-        wifi_config.start_hotspot(request.json['ssid'], request.json['password'])
+        statuscode = wifi_config.start_hotspot(request.json['ssid'], request.json['password'])
     else:
-        wifi_config.connect_to_wifi(request.json['ssid'], request.json['password'])
-    return Response(status=200)
+        statuscode = wifi_config.connect_to_wifi(request.json['ssid'], request.json['password'])
+    return Response(status=statuscode)
 
 
 @app.route('/favicon.ico')
