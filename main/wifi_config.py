@@ -19,6 +19,7 @@ else:
     WIFI_INTERFACE_NAME = "wlan0" if not os.path.exists("not_pi") else "wlp15s0"
 
     def connect_to_wifi(ssid: str, password: str) -> int:
+
         """
         Connects to a WiFi network using the provided SSID and password.
         """
@@ -27,6 +28,7 @@ else:
             subprocess.run(["nmcli", "device", "disconnect", WIFI_INTERFACE_NAME], check=True)
         except subprocess.CalledProcessError as e:
             print(f"Couldn't disconnect from previous network (check above line)(still attempting connection): {e}")
+
             # no need to return
 
         time.sleep(5)  # give it some time to do some shit or sth
@@ -53,6 +55,7 @@ else:
         except subprocess.CalledProcessError as e:
             print(f"Failed to start hotspot: {e}")
             return 500
+
 
 
 # Example usage
