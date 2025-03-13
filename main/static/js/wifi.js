@@ -12,6 +12,18 @@ document.getElementById('confirm-btn').addEventListener('click', function() {
   const ssid = document.getElementById('ssid').value;
   const password = document.getElementById('password').value;
   const hotspot = document.getElementById('toggle-switch').checked;
+
+  // Disable all fields and the confirm button
+  document.getElementById('ssid').disabled = true;
+  document.getElementById('password').disabled = true;
+  document.getElementById('toggle-switch').disabled = true;
+  document.getElementById('confirm-btn').disabled = true;
+
+  //enable the spinner
+  document.getElementById('connecting-loader').style.display = 'block';
+  // Clear any previous response message
+  document.getElementById('response-message').textContent = '';
+
   fetch('/wifi/connect', {
     method: 'POST',
     headers: {
@@ -19,11 +31,21 @@ document.getElementById('confirm-btn').addEventListener('click', function() {
     },
     body: JSON.stringify({ ssid, password, hotspot }),
   })
-  .then(response => response.json())
-  .then(data => {
-    console.log('Success:', data);
+  .then(response => {
+    // Display the response status code
+    document.getElementById('response-message').textContent = `Response Code: ${response.status}`;
   })
   .catch((error) => {
-    console.error('Error:', error);
+    // Display the error message
+    document.getElementById('response-message').textContent = 'Error: ' + error.message;
+  })
+  .finally(() => {
+    // Hide loading spinner
+    document.getElementById('connecting-loader').style.display = 'none';
+
+    document.getElementById('ssid').disabled = false;
+    document.getElementById('password').disabled = false;
+    document.getElementById('toggle-switch').disabled = false;
+    document.getElementById('confirm-btn').disabled = false;
   });
 });
