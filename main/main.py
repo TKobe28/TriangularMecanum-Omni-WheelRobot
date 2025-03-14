@@ -1,8 +1,14 @@
 import movement
 import control
+import wifi_config
+try:
+    import button
+    button.activation_function = wifi_config.start_hotspot
+except ModuleNotFoundError:
+    pass
 from sys import platform
 do_gunicorn = False
-if platform == 'linux':
+if do_gunicorn and platform == 'linux':
     print("Detected Linux, Preparing gunicorn")
     try:
         import gunicorn.app.base
