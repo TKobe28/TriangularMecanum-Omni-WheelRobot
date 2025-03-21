@@ -14,7 +14,7 @@
 
     <div class="main">
         <div class="video-container">
-            <img id="videoFeed" src="/video_feed">
+            <img id="videoFeed" src="/video_feed" onerror="this.src='/video_feed?'+new Date().getTime();">
         </div>
 
         <div class="controls">
@@ -29,7 +29,7 @@
         <div class="speed-control">
             <label for="speedSlider">Speed Multiplier:</label>
             <input type="range" id="speedSlider" min="20" max="100" step="1" value="50">
-            <span id="speedValue" style="color: white;">1x</span>
+            <span id="speedValue" style="color: white;">50x</span>
         </div>
     </div>
     <script src="{{ url_for('static', filename='js/index.js') }}"></script>

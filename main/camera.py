@@ -107,7 +107,7 @@ class BaseCamera:
 
             # if there hasn't been any clients asking for frames in
             # the last 10 seconds then stop the thread
-            if time.time() - BaseCamera.last_access > 10:
+            if time.time() - BaseCamera.last_access > 1000:
                 frames_iterator.close()
                 print('Stopping camera thread due to inactivity.')
                 break
@@ -162,9 +162,9 @@ else:
                 #     "AwbMode": controls.AwbModeEnum.Indoor  # Lock white balance
                 # }
                 # picam2.set_controls(controls)
-
+                print("Starting picamera")
                 camera.start()
-
+                print("Picamera started")
                 ## let camera warm up
                 #time.sleep(2)
 
@@ -172,7 +172,7 @@ else:
                 try:
                     while True:
                         buffer = camera.capture_array()
-
+                        time.sleep(0.041)  # cca 24 fps
                         # Fastest possible JPEG conversion
                         _, jpeg = cv2.imencode(
                             ".jpg",
@@ -197,5 +197,7 @@ def video_stream_generator():
     camera = Camera()
     yield b'--frame\r\n'
     while True:
+        last_time = time.time()
         frame = camera.get_frame()
         yield b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n--frame\r\n'
+        time.sleep(max(0.041 - (time.time() - last_time), 0))  # cca 24 fps

@@ -70,7 +70,7 @@ def logout():
 @requires_auth(access_level=1)
 def video_feed():
     """Endpoint that serves the video feed."""
-    return Response(camera.video_stream_generator(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(camera.video_stream_generator(), mimetype='multipart/x-mixed-replace; boundary=frame', headers={"Cache-Control": "no-cache"})
 
 
 control_function: typing.Callable = lambda vx, vy, omega: (0, "")
