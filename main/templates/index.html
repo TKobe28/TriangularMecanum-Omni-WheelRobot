@@ -20,8 +20,26 @@
 
             <script>
                 const socket = io();
-                socket.on('video_frame', (data) => {
-                    document.getElementById('video').src = 'data:image/jpeg;base64,' + data;
+                const videoElement = document.getElementById('video');
+                let currentBlobUrl = null; // Track the current Blob URL
+
+                socket.on('video_frame', (base64Data) => {
+                    // Convert base64 to raw binary data
+                    const byteArray = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+                    const blob = new Blob([byteArray], { type: 'image/jpeg' });
+
+                    // Create new Blob URL
+                    const newBlobUrl = URL.createObjectURL(blob);
+
+                    // Update image source
+                    videoElement.onload = () => {
+                        // Revoke previous Blob URL after new image loads
+                        if (currentBlobUrl) {
+                            URL.revokeObjectURL(currentBlobUrl);
+                        }
+                        currentBlobUrl = newBlobUrl;
+                    };
+                    videoElement.src = newBlobUrl;
                 });
             </script>
         </div>
