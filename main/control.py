@@ -5,11 +5,11 @@ import os
 import typing
 from functools import wraps, cache
 import hashlib
-import camera
 import wifi_config
 
 hashing_function = cache(hashlib.sha256)  # possible memory overflow uwu
 app = Flask(__name__)
+import camera
 
 # users
 users: list[tuple[str, str, int]] or [] = []  # [(username1, pass1, access_level1), (username2, pass2, access_level1), ...]
@@ -64,13 +64,6 @@ def logout():
         401,
         {'WWW-Authenticate': 'Basic realm="Login Required"'}
     )
-
-
-@app.route('/video_feed')
-@requires_auth(access_level=1)
-def video_feed():
-    """Endpoint that serves the video feed."""
-    return Response(camera.video_stream_generator(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 control_function: typing.Callable = lambda vx, vy, omega: (0, "")
