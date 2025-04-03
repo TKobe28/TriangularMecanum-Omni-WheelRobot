@@ -28,15 +28,17 @@ FRAMETIME = 1 / 24
 if test:
     camera = cv2.VideoCapture(0)
 
-    # todo: cv2.imencode('.jpg', img, params=[cv2.IMWRITE_JPEG_QUALITY, 50])
     def emit_frames():
         while True:
+            start_capture_time = time.time()
             success, frame = camera.read()
             if success:
                 _, buffer = cv2.imencode('.jpg', frame, params=[cv2.IMWRITE_JPEG_QUALITY, QUALITY])
                 jpg_as_text = base64.b64encode(buffer).decode('utf-8')
                 socketio.emit('video_frame', jpg_as_text)
-            time.sleep(FRAMETIME)
+
+            capture_time = time.time() - start_capture_time
+            time.sleep(max(0.0, FRAMETIME - capture_time))  # sleep, if already late do not sleep. # todo - optimise for lower latency
 
 else:
     camera = Picamera2()
@@ -52,6 +54,7 @@ else:
     def emit_frames():
         try:
             while True:
+                start_capture_time = time.time()
                 buffer = camera.capture_array()
 
                 # Fastest possible JPEG conversion
@@ -63,8 +66,10 @@ else:
                 if not _:
                     continue
                 jpg_as_text = base64.b64encode(buffer).decode('utf-8')
-                socketio.emit('video_frame', jpg_as_text)  # todo: tobytes()?
+                socketio.emit('video_frame', jpg_as_text)  # is tobytes() better?
                 time.sleep(FRAMETIME)
+                capture_time = time.time() - start_capture_time
+                time.sleep(max(0.0, FRAMETIME - capture_time))  # sleep, if already late do not sleep. # todo
         finally:
             camera.stop()
 
