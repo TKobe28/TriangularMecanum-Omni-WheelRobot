@@ -15,33 +15,14 @@
     <div class="main">
         <div class="video-container">
             <img class="video" src="" id="video" width="640" height="480">
+            <div class="quality-control">
+                <label for="speedSlider">video quality:</label>
+                <input type="range" id="qualitySlider" min="1" max="100" step="1" value="50">
+                <span id="quality" style="color: white;">50 %</span>
+            </div>
             <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script> -->
             <script src="{{ url_for('static', filename='js/socket.io.js') }}"></script>
-
-            <script>
-                const socket = io();
-                const videoElement = document.getElementById('video');
-                let currentBlobUrl = null; // Track the current Blob URL
-
-                socket.on('video_frame', (base64Data) => {
-                    // Convert base64 to raw binary data
-                    const byteArray = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
-                    const blob = new Blob([byteArray], { type: 'image/jpeg' });
-
-                    // Create new Blob URL
-                    const newBlobUrl = URL.createObjectURL(blob);
-
-                    // Update image source
-                    videoElement.onload = () => {
-                        // Revoke previous Blob URL after new image loads
-                        if (currentBlobUrl) {
-                            URL.revokeObjectURL(currentBlobUrl);
-                        }
-                        currentBlobUrl = newBlobUrl;
-                    };
-                    videoElement.src = newBlobUrl;
-                });
-            </script>
+            <script src="{{ url_for('static', filename='js/video_stream.js') }}"></script>
         </div>
 
         <div class="controls">

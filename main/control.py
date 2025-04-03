@@ -1,6 +1,6 @@
 import multiprocessing
 import time
-from flask import Flask, Response, request, jsonify, render_template, send_from_directory
+from flask import Flask, Response, request, jsonify, render_template, send_from_directory, render_template_string
 import os
 import typing
 from functools import wraps, cache
@@ -92,7 +92,32 @@ def index():
     return render_template("index.html")
 
 
+@app.route('/test')
+def test():
+    return render_template_string('''<html><body>
+        <img id="video" width="640" height="480">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+        <script>
+            const socket = io();
+            socket.on('video_frame', (data) => {
+                document.getElementById('video').src = 'data:image/jpeg;base64,' + data;
+            });
+        </script></body></html>''')
+
+
+@app.route('/stream_settings', methods=['POST'])
+@requires_auth(access_level=0)
+def stream_settings_handler():
+    quality = request.json['quality']
+    if not (type(quality) is int and 1 <= quality <= 100):
+        return Response(status=400)
+    camera.QUALITY = quality
+    return Response(status=200)
+
+
 wifi_semaphore = multiprocessing.Semaphore()  # todo: test!
+
+
 @app.route('/wifi')
 @requires_auth(access_level=0)
 def wifi_page():

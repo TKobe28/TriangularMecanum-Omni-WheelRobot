@@ -74,6 +74,22 @@ body {
     width: 200px;
 }
 
+.quality-control {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.quality-control label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: white;
+}
+
+.quality-control input[type="range"] {
+    width: 200px;
+}
+
 .topnav {
   margin: 0;
   overflow: hidden;

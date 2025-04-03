@@ -69,17 +69,4 @@ else:
             camera.stop()
 
 
-@app.route('/test')
-def test():
-    return render_template_string('''<html><body>
-        <img id="video" width="640" height="480">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
-        <script>
-            const socket = io();
-            socket.on('video_frame', (data) => {
-                document.getElementById('video').src = 'data:image/jpeg;base64,' + data;
-            });
-        </script></body></html>''')
-
-
 threading.Thread(target=emit_frames, daemon=True).start()  # todo
