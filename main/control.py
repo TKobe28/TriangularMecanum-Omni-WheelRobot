@@ -65,7 +65,7 @@ def logout():
         {'WWW-Authenticate': 'Basic realm="Login Required"'}
     )
 
-
+  
 control_function: typing.Callable = lambda vx, vy, omega: (0, "")
 
 

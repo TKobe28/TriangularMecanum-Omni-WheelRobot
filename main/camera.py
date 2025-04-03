@@ -22,8 +22,10 @@ from control import app
 
 socketio = SocketIO(app, cors_allowed_origins="*")
 
+
 QUALITY = 50
 FRAMETIME = 1 / 24
+
 
 if test:
     camera = cv2.VideoCapture(0)
@@ -63,6 +65,7 @@ else:
                     buffer,
                     params=[cv2.IMWRITE_JPEG_QUALITY, QUALITY]
                 )
+
                 if not _:
                     continue
                 jpg_as_text = base64.b64encode(buffer).decode('utf-8')
