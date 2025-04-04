@@ -20,6 +20,7 @@ except ModuleNotFoundError:
     test = True
     import matplotlib.pyplot as plt
 
+MIN_DUTY = 20  # Tune empirically (usually 15–30)
 
 class Movement:
     class Motor:
@@ -39,23 +40,27 @@ class Movement:
 
         def set_speed(self, speed: float):
             self.speed = speed
-            print(self.id, speed)
+            if abs(speed) < 1e-2:
+                speed = 0
+
             if speed > 0:
-                self.pwms[0].ChangeDutyCycle(abs(speed))
+                duty = max(abs(speed), MIN_DUTY)
+                self.pwms[0].ChangeDutyCycle(duty)
                 self.pwms[1].ChangeDutyCycle(0)
             elif speed < 0:
+                duty = max(abs(speed), MIN_DUTY)
                 self.pwms[0].ChangeDutyCycle(0)
-                self.pwms[1].ChangeDutyCycle(abs(speed))
+                self.pwms[1].ChangeDutyCycle(duty)
             else:
-                self.pwms[0].ChangeDutyCycle(abs(speed))
-                self.pwms[1].ChangeDutyCycle(abs(speed))
+                self.pwms[0].ChangeDutyCycle(0)
+                self.pwms[1].ChangeDutyCycle(0)
 
     def __init__(self):
 
         self.motors = [
-            self.Motor([20, 21], math.radians(45), 1),
+            self.Motor([7, 1], math.radians(255), 1),
             self.Motor([25, 8], math.radians(165), 2),
-            self.Motor([7, 1], math.radians(285), 3)
+            self.Motor([20, 21], math.radians(285), 3),
         ]
         self.orientation = 0
 
