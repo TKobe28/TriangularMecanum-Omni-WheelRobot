@@ -27,7 +27,7 @@ function displayStatus(data) {
             <h2>WiFi Status</h2>
             <p><strong>Connected:</strong> <span class="${data.connected ? 'connected' : 'not-connected'}">${data.connected ? 'Yes' : 'No'}</span></p>
             <p><strong>Internet Access:</strong> <span class="${data.internet ? 'connected' : 'not-connected'}">${data.internet ? 'Yes' : 'No'}</span></p>
-            <p><strong>Network Name:</strong> ${data['network name'] || 'Not Available'}</p>
+            <p><strong>Network Name:</strong> ${data['ssid'] || 'Not Available'}</p>
         </div>
     `;
 }

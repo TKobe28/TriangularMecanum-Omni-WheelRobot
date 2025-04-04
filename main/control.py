@@ -6,6 +6,7 @@ import typing
 from functools import wraps, cache
 import hashlib
 import wifi_config
+from wifi_status import get_wifi_status
 
 hashing_function = cache(hashlib.sha256)  # possible memory overflow uwu
 app = Flask(__name__)
@@ -128,16 +129,10 @@ def wifi_page():
     finally:
         wifi_semaphore.release()
 
-
 @app.route("/wifi/status")
 @requires_auth(0)
 def wifi_status():
-    time.sleep(1)
-    return jsonify({
-        'connected': False,
-        'internet': False,
-        'network name': None
-    })
+    return jsonify(get_wifi_status())
 
 
 @app.route('/wifi/connect', methods=['POST'])
