@@ -10,6 +10,7 @@ import wifi_config
 hashing_function = cache(hashlib.sha256)  # possible memory overflow uwu
 app = Flask(__name__)
 import camera
+print("Imported camera!")
 
 # users
 users: list[tuple[str, str, int]] or [] = []  # [(username1, pass1, access_level1), (username2, pass2, access_level1), ...]

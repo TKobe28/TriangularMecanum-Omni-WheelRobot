@@ -13,15 +13,16 @@ try:
 except ModuleNotFoundError:
     print("Picamera not installed, running in test mode")
     test = True
-from flask import render_template_string
+print("Importing socket.io, might take some time ...")
+print("ksksk")
 from flask_socketio import SocketIO
 import cv2
 import base64
 import threading
 from control import app
-
+print("ksksk")
 socketio = SocketIO(app, cors_allowed_origins="*")
-
+print("socketio ok")
 
 QUALITY = 50
 FRAMETIME = 1 / 24
@@ -43,6 +44,7 @@ if test:
             time.sleep(max(0.0, FRAMETIME - capture_time))  # sleep, if already late do not sleep. # todo - optimise for lower latency
 
 else:
+    print("not test!")
     camera = Picamera2()
     config = camera.create_video_configuration(
         main={"size": (640, 480)},
@@ -68,7 +70,7 @@ else:
 
                 if not _:
                     continue
-                jpg_as_text = base64.b64encode(buffer).decode('utf-8')
+                jpg_as_text = base64.b64encode(jpeg).decode('utf-8')
                 socketio.emit('video_frame', jpg_as_text)  # is tobytes() better?
                 time.sleep(FRAMETIME)
                 capture_time = time.time() - start_capture_time
