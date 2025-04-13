@@ -27,12 +27,14 @@ class Movement:
     class Motor:
         pwm_freq = 1000
 
-        def __init__(self, pins: [int], angle: float, id=69):
+        def __init__(self, pins: [int], angle: float, id=69, small_wheels_angle: float = math.radians(45)):
             self.id = id
             self.pins = pins
             self.pwms = []
-            self.angle = angle
+            self.angle = angle  # the angle from forward vector
             self.speed = 0
+            self.small_wheels_angle = small_wheels_angle
+            self.phi = self.angle + self.small_wheels_angle
             if not test:
                 for pin in self.pins:
                     GPIO.setup(pin, GPIO.OUT)
@@ -59,9 +61,9 @@ class Movement:
     def __init__(self):
 
         self.motors = [
-            self.Motor([7, 1], math.radians(255), 1),
-            self.Motor([25, 8], math.radians(165), 2),
-            self.Motor([20, 21], math.radians(285), 3),
+            self.Motor([7, 1],   math.radians(45),  id=1, small_wheels_angle=math.radians(-45)),  # this one is right edition wheel
+            self.Motor([25, 8],  math.radians(180), id=2),
+            self.Motor([20, 21], math.radians(315), id=3),
         ]
         self.orientation = 0
 
@@ -77,7 +79,7 @@ class Movement:
 
             # Compute raw speeds
             for motor in self.motors:
-                speed = vx * math.cos(motor.angle) + vy * math.sin(motor.angle) + omega
+                speed = -1 * (vx * math.cos(motor.phi) + vy * math.cos(motor.phi)) + omega  # idk why * -1
                 speeds.append(speed)
 
             # Find the maximum absolute speed
@@ -97,7 +99,6 @@ class Movement:
         except Exception as e:
             return -1, traceback.format_exc()
 
-
     def test_movement(self):
         self.move_robot(6, 6, 50)
         time.sleep(10)
@@ -116,7 +117,14 @@ if test:
             self.ax.set_aspect('equal')
             self.robot_arrow = None
             self.wheel_arrows = [None, None, None]
+            self.dx = 0
+            self.dy = 0
             super().__init__()
+
+        def move_robot(self, vx, vy, omega):
+            self.dx = vx
+            self.dy = vy
+            return super().move_robot(vx, vy, omega)
 
         def test_movement(self):
             """Test the robot's movement with predefined commands."""
@@ -127,6 +135,7 @@ if test:
 
             # Move sideways
             self.move_robot(0.0, 1.0, 0.0)
+            self.update_plot()
             plt.show(block=False)
 
             # Rotate in place
@@ -136,9 +145,9 @@ if test:
             # Move diagonally
             self.move_robot(1.0, 1.0, 0.0)
             plt.show(block=False)
-
             # Rotate while moving
-            self.move_robot(1.0, 0.0, np.pi / 4)
+            self.move_robot(-5.8, -3.4, np.pi / 4)
+            self.update_plot()
             plt.show(block=False)
 
         def update_plot(self):
@@ -150,10 +159,8 @@ if test:
                     arrow.remove()
 
             # Draw the robot as an arrow
-            dx = np.cos(self.orientation)
-            dy = np.sin(self.orientation)
             self.robot_arrow = self.ax.arrow(
-                0, 0, dx, dy,
+                0, 0, self.dx, self.dy,
                 head_width=0.5, head_length=0.7, fc='blue', ec='blue'
             )
 
