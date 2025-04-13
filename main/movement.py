@@ -20,7 +20,8 @@ except ModuleNotFoundError:
     test = True
     import matplotlib.pyplot as plt
 
-MIN_DUTY = 20  # Tune empirically (usually 15–30)
+MIN_DUTY = 25
+
 
 class Movement:
     class Motor:

@@ -137,7 +137,7 @@ def wifi_status():
 
 @app.route('/wifi/connect', methods=['POST'])
 @requires_auth(0)
-def connect_wifi():  # todo: security, check if ok, return actual status (though unnecessary as the sender disconnects anyway)
+def connect_wifi():
     if request.json['hotspot'] == True:
         statuscode = wifi_config.start_hotspot(request.json['ssid'], request.json['password'])
     else:

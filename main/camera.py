@@ -14,19 +14,18 @@ except ModuleNotFoundError:
     print("Picamera not installed, running in test mode")
     test = True
 print("Importing socket.io, might take some time ...")
-print("ksksk")
 from flask_socketio import SocketIO
 import cv2
 import base64
 import threading
 from control import app
-print("ksksk")
+from traceback import format_exception
+
 socketio = SocketIO(app, cors_allowed_origins="*")
 print("socketio ok")
 
 QUALITY = 50
 FRAMETIME = 1 / 24
-
 
 if test:
     camera = cv2.VideoCapture(0)
@@ -41,7 +40,8 @@ if test:
                 socketio.emit('video_frame', jpg_as_text)
 
             capture_time = time.time() - start_capture_time
-            time.sleep(max(0.0, FRAMETIME - capture_time))  # sleep, if already late do not sleep. # todo - optimise for lower latency
+            if capture_time < FRAMETIME:
+                time.sleep(FRAMETIME - capture_time)
 
 else:
     print("not test!")
@@ -74,9 +74,12 @@ else:
                 socketio.emit('video_frame', jpg_as_text)  # is tobytes() better?
                 time.sleep(FRAMETIME)
                 capture_time = time.time() - start_capture_time
-                time.sleep(max(0.0, FRAMETIME - capture_time))  # sleep, if already late do not sleep. # todo
+                if capture_time < FRAMETIME:
+                    time.sleep(FRAMETIME - capture_time)
+        except Exception as e:
+            print("ERROR IN EMITING FRAMES:", "\n".join(format_exception(e)))
         finally:
             camera.stop()
 
 
-threading.Thread(target=emit_frames, daemon=True).start()  # todo
+threading.Thread(target=emit_frames, daemon=True).start()
