@@ -117,17 +117,10 @@ def stream_settings_handler():
     return Response(status=200)
 
 
-wifi_semaphore = multiprocessing.Semaphore()  # todo: test!
-
-
 @app.route('/wifi')
 @requires_auth(access_level=0)
 def wifi_page():
-    try:
-        wifi_semaphore.acquire()
-        return render_template("wifi.html")
-    finally:
-        wifi_semaphore.release()
+    return render_template("wifi.html")
 
 @app.route("/wifi/status")
 @requires_auth(0)

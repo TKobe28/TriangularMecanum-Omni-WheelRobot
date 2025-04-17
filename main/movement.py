@@ -1,5 +1,7 @@
 import sys
 import atexit
+import threading
+
 import numpy as np
 import math
 import traceback
@@ -10,7 +12,6 @@ try:
     test = False
     GPIO.setmode(GPIO.BCM)
 
-
     @atexit.register
     def clear_GPIO():
         GPIO.cleanup()
@@ -19,6 +20,8 @@ except ModuleNotFoundError:
     print("Could not import movement libraries, running in test mode.")
     test = True
     import matplotlib.pyplot as plt
+    from matplotlib._pylab_helpers import Gcf as __Gcf  # so we can handle window updates ourselves
+
 
 MIN_DUTY = 25
 
@@ -38,7 +41,7 @@ class Movement:
             if not test:
                 for pin in self.pins:
                     GPIO.setup(pin, GPIO.OUT)
-                    self.pwms.append(pwm := GPIO.PWM(pin, self.pwm_freq))  # 1 kHz PWM frequency
+                    self.pwms.append(pwm := GPIO.PWM(pin, self.pwm_freq))
                     pwm.start(0)
 
         def set_speed(self, speed: float):
@@ -59,11 +62,10 @@ class Movement:
                 self.pwms[1].ChangeDutyCycle(0)
 
     def __init__(self):
-
         self.motors = [
-            self.Motor([7, 1],   math.radians(45),  id=1, small_wheels_angle=math.radians(-45)),  # this one is right edition wheel
+            self.Motor([7, 1],   math.radians(60),  id=1, small_wheels_angle=math.radians(-45)),  # this one is right edition wheel
             self.Motor([25, 8],  math.radians(180), id=2),
-            self.Motor([20, 21], math.radians(315), id=3),
+            self.Motor([20, 21], math.radians(300), id=3),
         ]
         self.orientation = 0
 
@@ -104,19 +106,25 @@ class Movement:
         time.sleep(10)
 
 
-if test:
+if test:  # so that we can test stuff on pc, not just on the py
+    __TK = None
+
+    def updater():
+        while True:
+            global __TK
+            if __Gcf.figs == {}:
+                __TK = None
+            else:
+                if __TK == None:
+                    __TK = __Gcf.get_active().window
+                __TK.update()
+
     class Movement(Movement):  # sowy
         class Motor(Movement.Motor):
             def set_speed(self, speed):
                 self.speed = speed
 
         def __init__(self):
-            self.fig, self.ax = plt.subplots()
-            self.ax.set_xlim(-10, 10)
-            self.ax.set_ylim(-10, 10)
-            self.ax.set_aspect('equal')
-            self.robot_arrow = None
-            self.wheel_arrows = [None, None, None]
             self.dx = 0
             self.dy = 0
             super().__init__()
@@ -130,59 +138,70 @@ if test:
             """Test the robot's movement with predefined commands."""
             # Move forward
             self.move_robot(1.0, 0.0, 0.0)
-            self.update_plot()
-            plt.show(block=False)
+            self.visualise(name="forward")
 
             # Move sideways
             self.move_robot(0.0, 1.0, 0.0)
-            self.update_plot()
-            plt.show(block=False)
+            self.visualise(name="sideways")
 
             # Rotate in place
             self.move_robot(0.0, 0.0, np.pi / 4)
-            plt.show(block=False)
+            self.visualise(name="rotate")
 
             # Move diagonally
             self.move_robot(1.0, 1.0, 0.0)
-            plt.show(block=False)
+            self.visualise(name="diagonally")
+
             # Rotate while moving
             self.move_robot(-5.8, -3.4, np.pi / 4)
-            self.update_plot()
-            plt.show(block=False)
+            self.visualise(name="idk")
 
-        def update_plot(self):
+            try:
+                updater()
+            finally:
+                return
+
+        def visualise(self, name: str = "test"):
             """Update the plot with the current robot position and orientation."""
-            if self.robot_arrow is not None:
-                self.robot_arrow.remove()
-            for arrow in self.wheel_arrows:
-                if arrow is not None:
-                    arrow.remove()
+            fig, ax = plt.subplots()
+            plt.title(name)
+            ax.set_aspect('equal')
+            robot_arrow = None
+            wheel_arrows = [None, None, None]
+            wheel_labels = [None, None, None]
 
             # Draw the robot as an arrow
-            self.robot_arrow = self.ax.arrow(
+            robot_arrow = ax.arrow(
                 0, 0, self.dx, self.dy,
                 head_width=0.5, head_length=0.7, fc='blue', ec='blue'
             )
-
+            body_points_x = []
+            body_points_y = []
             for i, motor in enumerate(self.motors):
                 # Calculate wheel position relative to the robot's center
-                wheel_x = 5 * np.cos(motor.angle + self.orientation)
-                wheel_y = 5 * np.sin(motor.angle + self.orientation)
+                wheel_x = 5 * np.cos(motor.angle)  # + self.orientation)
+                wheel_y = 5 * np.sin(motor.angle)  # + self.orientation)
+                body_points_x.append(wheel_x)
+                body_points_y.append(wheel_y)
 
                 # Calculate wheel direction (perpendicular to the wheel angle)
-                wheel_dx = -np.sin(motor.angle + self.orientation) * motor.speed
-                wheel_dy = np.cos(motor.angle + self.orientation) * motor.speed
+                wheel_dx = -np.sin(motor.angle) * motor.speed  # + self.orientation
+                wheel_dy = np.cos(motor.angle) * motor.speed  # + self.orientation
 
-                self.wheel_arrows[i] = self.ax.arrow(
+                wheel_arrows[i] = ax.arrow(
                     wheel_x, wheel_y, wheel_dx, wheel_dy,
                     head_width=0.2, head_length=0.3, fc='red', ec='red'
                 )
+                wheel_labels[i] = ax.text(wheel_x + 0.5, wheel_y, str(motor.id))
+
+            plt.plot(body_points_x + [body_points_x[0]], body_points_y + [body_points_y[0]])
+
+            plt.show(block=False)
             print("Updated plot")
 
     if __name__ == "__main__":
         test = Movement()
         test.test_movement()
-        plt.show()
         sys.exit()
 
 # Run the test
