@@ -7,10 +7,9 @@ from functools import wraps, cache
 import hashlib
 import wifi_config
 from wifi_status import get_wifi_status
-
-hashing_function = cache(hashlib.sha256)  # possible memory overflow uwu
+hashing_function = cache(hashlib.sha256)  # todo: possible memory overflow and possible vulnerability uwu
 app = Flask(__name__)
-import camera
+import camera  # noqa: PEP 8: E402
 print("Imported camera!")
 
 # users
@@ -82,7 +81,6 @@ def control():
     vx = data['vx']
     vy = data['vy']
     omega = data['omega']
-    print("now control ihihiiha")
     result = control_function(vx, vy, omega)
     return jsonify(result)
 
@@ -94,17 +92,17 @@ def index():
     return render_template("index.html")
 
 
-@app.route('/test')
-def test():
-    return render_template_string('''<html><body>
-        <img id="video" width="640" height="480">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
-        <script>
-            const socket = io();
-            socket.on('video_frame', (data) => {
-                document.getElementById('video').src = 'data:image/jpeg;base64,' + data;
-            });
-        </script></body></html>''')
+#  @app.route('/test')
+#  def test():
+#      return render_template_string('''<html><body>
+#          <img id="video" width="640" height="480">
+#          <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+#          <script>
+#              const socket = io();
+#              socket.on('video_frame', (data) => {
+#                  document.getElementById('video').src = 'data:image/jpeg;base64,' + data;
+#              });
+#          </script></body></html>''')
 
 
 @app.route('/stream_settings', methods=['POST'])
@@ -122,10 +120,14 @@ def stream_settings_handler():
 def wifi_page():
     return render_template("wifi.html")
 
+
 @app.route("/wifi/status")
 @requires_auth(0)
 def wifi_status():
-    return jsonify(get_wifi_status())
+    status, code = get_wifi_status()
+    response = jsonify(status)
+    response.status = code
+    return response
 
 
 @app.route('/wifi/connect', methods=['POST'])
