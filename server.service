@@ -6,8 +6,8 @@ After=network.target
 WorkingDirectory=/home/its/main
 ExecStart=/usr/bin/python3 /home/its/main/main.py
 Restart=always
-StandardOutput=append:/home/its/main/output.log
-StandardError=append:/home/its/main/error.log
+StandardOutput=journal+console
+StandardError=journal+console
 User=root
 
 [Install]

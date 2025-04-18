@@ -9,7 +9,10 @@ import wifi_config
 from wifi_status import get_wifi_status
 hashing_function = cache(hashlib.sha256)  # todo: possible memory overflow and possible vulnerability uwu
 app = Flask(__name__)
-import camera  # noqa: PEP 8: E402
+try:
+    import camera  # noqa: PEP 8: E402
+except:
+    print("no camera detected!")
 print("Imported camera!")
 
 # users

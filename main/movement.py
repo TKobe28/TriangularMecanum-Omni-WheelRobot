@@ -30,7 +30,7 @@ class Movement:
     class Motor:
         pwm_freq = 1000
 
-        def __init__(self, pins: [int], angle: float, id=69, small_wheels_angle: float = math.radians(45)):
+        def __init__(self, pins: [int], angle: float, id=69, small_wheels_angle: float = math.radians(45), reversed: bool=False):
             self.id = id
             self.pins = pins
             self.pwms = []
@@ -38,6 +38,7 @@ class Movement:
             self.speed = 0
             self.small_wheels_angle = small_wheels_angle
             self.phi = self.angle + self.small_wheels_angle
+            self.reversed = reversed
             if not test:
                 for pin in self.pins:
                     GPIO.setup(pin, GPIO.OUT)
@@ -45,6 +46,8 @@ class Movement:
                     pwm.start(0)
 
         def set_speed(self, speed: float):
+            if self.reversed:
+                speed = -speed
             self.speed = speed
             if abs(speed) < 1e-2:
                 speed = 0
@@ -63,7 +66,7 @@ class Movement:
 
     def __init__(self):
         self.motors = [
-            self.Motor([7, 1],   math.radians(60),  id=1, small_wheels_angle=math.radians(-45)),  # this one is right edition wheel
+            self.Motor([7, 1],   math.radians(60),  id=1, small_wheels_angle=math.radians(-45), reversed=True),  # this one is right edition wheel and reversed because it's wired wrong uwu
             self.Motor([25, 8],  math.radians(180), id=2),
             self.Motor([20, 21], math.radians(300), id=3),
         ]
