@@ -1,11 +1,10 @@
 import sys
 import atexit
-import threading
-
 import numpy as np
 import math
 import traceback
 import time
+import leds
 
 try:
     import RPi.GPIO as GPIO
@@ -78,6 +77,7 @@ class Movement:
         Maintains the correct speed ratio while ensuring all speeds stay in [-100, 100].
         """
         print(f"Moving with vx={vx}, vy={vy}, omega={omega}")
+        leds.turn_led("blue", not (vx == vy == omega == 0))
         try:
             self.orientation += omega
             speeds = []
