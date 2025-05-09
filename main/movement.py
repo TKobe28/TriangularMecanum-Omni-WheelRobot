@@ -46,8 +46,9 @@ class Movement:
 
         def set_speed(self, speed: float):
             if self.reversed:
-                speed = -speed
+                speed = -speed 
             self.speed = speed
+            print(self.id, speed)
             if abs(speed) < 1e-2:
                 speed = 0
 
@@ -65,9 +66,9 @@ class Movement:
 
     def __init__(self):
         self.motors = [
-            self.Motor([7, 1],   math.radians(60),  id=1, small_wheels_angle=math.radians(-45), reversed=True),  # this one is right edition wheel and reversed because it's wired wrong uwu
-            self.Motor([25, 8],  math.radians(180), id=2),
-            self.Motor([20, 21], math.radians(300), id=3),
+            self.Motor([20, 21], math.radians(60), id=1),
+            self.Motor([7, 1],   math.radians(180),  id=2, reversed=True),  # reversed because it's wired wrong uwu
+            self.Motor([25, 8],  math.radians(300), id=3, small_wheels_angle=math.radians(-45)), # this one is right edition wheel
         ]
         self.orientation = 0
 
@@ -84,7 +85,7 @@ class Movement:
 
             # Compute raw speeds
             for motor in self.motors:
-                speed = -1 * (vx * math.cos(motor.phi) + vy * math.cos(motor.phi)) + omega  # idk why * -1
+                speed = -2 * (vx * math.cos(motor.phi) + vy * math.cos(motor.phi)) + omega  # *-1 because amongus sus
                 speeds.append(speed)
 
             # Find the maximum absolute speed

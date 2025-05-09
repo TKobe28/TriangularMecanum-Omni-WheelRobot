@@ -45,7 +45,8 @@ def pwm_test(pwm1, pwm2):
         pass
 
 try:
-    for pwm1, pwm2 in pwm_objects:
+    for i, (pwm1, pwm2) in enumerate(pwm_objects):
+        print(i)
         pwm_test(pwm1, pwm2)
     print("Test done")
 finally:
