@@ -23,6 +23,9 @@ except ModuleNotFoundError:
 
 
 MIN_DUTY = 25
+RADIUS = 48  # mm
+ALPHA_COEF = 1
+OMEGA_COEF = 0.5
 
 
 class Movement:
@@ -36,8 +39,17 @@ class Movement:
             self.angle = angle  # the angle from forward vector
             self.speed = 0
             self.small_wheels_angle = small_wheels_angle
-            self.phi = self.angle + self.small_wheels_angle
+
             self.reversed = reversed
+
+            self.BETA_COEF = 1 / (RADIUS * math.sin(small_wheels_angle))
+            self.vector_a = np.array((math.sin(2 * math.pi - self.angle) * 1,
+                                      math.cos(2 * math.pi - self.angle) * 1))
+            self.vector_b = np.array((math.sin(2 * math.pi - self.angle + (math.pi / 2)) * 1,
+                                      math.cos(2 * math.pi - self.angle + (math.pi / 2)) * 1))
+            self.vector_c = np.array((math.sin(2 * math.pi - self.angle + small_wheels_angle * 1),
+                                      math.cos(2 * math.pi - self.angle + small_wheels_angle * 1)))
+
             if not test:
                 for pin in self.pins:
                     GPIO.setup(pin, GPIO.OUT)
@@ -68,7 +80,7 @@ class Movement:
         self.motors = [
             self.Motor([20, 21], math.radians(60), id=1),
             self.Motor([7, 1],   math.radians(180),  id=2, reversed=True),  # reversed because it's wired wrong uwu
-            self.Motor([25, 8],  math.radians(300), id=3, small_wheels_angle=math.radians(-45)), # this one is right edition wheel
+            self.Motor([25, 8],  math.radians(300), id=3, small_wheels_angle=math.radians(180-45)),  # this one is right edition wheel
         ]
         self.orientation = 0
 
@@ -83,9 +95,20 @@ class Movement:
             self.orientation += omega
             speeds = []
 
+            direction_vector = np.array((vx, vy))
+
             # Compute raw speeds
             for motor in self.motors:
-                speed = -2 * (vx * math.cos(motor.phi) + vy * math.cos(motor.phi)) + omega  # *-1 because amongus sus
+                # Coefficient matrix
+                A = np.column_stack((motor.vector_a, motor.vector_b))
+
+                # Solve for α and β
+                if np.linalg.matrix_rank(A) == 2:
+                    coeffs = np.linalg.solve(A, direction_vector)
+                    alpha, beta = coeffs
+                    speed = alpha * ALPHA_COEF + beta * math.tan(motor.small_wheels_angle) * motor.BETA_COEF + omega
+                else:
+                    raise RuntimeError("programmer skill issue - Vectors a and b are linearly dependent or do not span v")
                 speeds.append(speed)
 
             # Find the maximum absolute speed
@@ -143,22 +166,26 @@ if test:  # so that we can test stuff on pc, not just on the py
             # Move forward
             self.move_robot(1.0, 0.0, 0.0)
             self.visualise(name="forward")
-
+            self.orientation = 0
             # Move sideways
             self.move_robot(0.0, 1.0, 0.0)
             self.visualise(name="sideways")
+            self.orientation = 0
 
             # Rotate in place
             self.move_robot(0.0, 0.0, np.pi / 4)
             self.visualise(name="rotate")
+            self.orientation = 0
 
             # Move diagonally
             self.move_robot(1.0, 1.0, 0.0)
             self.visualise(name="diagonally")
+            self.orientation = 0
 
             # Rotate while moving
             self.move_robot(-5.8, -3.4, np.pi / 4)
             self.visualise(name="idk")
+            self.orientation = 0
 
             try:
                 updater()
@@ -183,20 +210,33 @@ if test:  # so that we can test stuff on pc, not just on the py
             body_points_y = []
             for i, motor in enumerate(self.motors):
                 # Calculate wheel position relative to the robot's center
-                wheel_x = 5 * np.cos(motor.angle)  # + self.orientation)
-                wheel_y = 5 * np.sin(motor.angle)  # + self.orientation)
+                wheel_x = 5 * np.cos(motor.angle + self.orientation)
+                wheel_y = 5 * np.sin(motor.angle + self.orientation)
                 body_points_x.append(wheel_x)
                 body_points_y.append(wheel_y)
 
                 # Calculate wheel direction (perpendicular to the wheel angle)
-                wheel_dx = -np.sin(motor.angle) * motor.speed  # + self.orientation
-                wheel_dy = np.cos(motor.angle) * motor.speed  # + self.orientation
+                wheel_dx = -np.sin(motor.angle + self.orientation) * motor.speed
+                wheel_dy = np.cos(motor.angle + self.orientation) * motor.speed
 
                 wheel_arrows[i] = ax.arrow(
                     wheel_x, wheel_y, wheel_dx, wheel_dy,
                     head_width=0.2, head_length=0.3, fc='red', ec='red'
                 )
                 wheel_labels[i] = ax.text(wheel_x + 0.5, wheel_y, str(motor.id))
+
+                ax.arrow(
+                    wheel_x, wheel_y, motor.vector_a[0], motor.vector_a[1],
+                    head_width=0.2, head_length=0.3, fc='pink', ec='yellow'
+                )
+                ax.arrow(
+                    wheel_x, wheel_y, motor.vector_b[0], motor.vector_b[1],
+                    head_width=0.2, head_length=0.3, fc='pink', ec='yellow'
+                )
+                ax.arrow(
+                    wheel_x, wheel_y, motor.vector_c[0], motor.vector_c[1],
+                    head_width=0.2, head_length=0.3, fc='brown', ec='purple'
+                )
 
             plt.plot(body_points_x + [body_points_x[0]], body_points_y + [body_points_y[0]])
 
