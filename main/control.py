@@ -3,11 +3,11 @@ import time
 from flask import Flask, Response, request, jsonify, render_template, send_from_directory, render_template_string
 import os
 import typing
-from functools import wraps, cache
+from functools import wraps, lru_cache
 import hashlib
 import wifi_config
 from wifi_status import get_wifi_status
-hashing_function = cache(hashlib.sha256)  # todo: possible memory overflow and possible vulnerability uwu
+hashing_function = lru_cache(maxsize=10)(hashlib.sha256)
 app = Flask(__name__)
 try:
     import camera  # noqa: PEP 8: E402
