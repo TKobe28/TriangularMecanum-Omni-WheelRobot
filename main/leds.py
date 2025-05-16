@@ -11,7 +11,7 @@ try:
     GPIO.setmode(GPIO.BCM)
 
     # Setup pins as output
-    for state, pin in leds:
+    for state, pin in leds.values():
         GPIO.setup(pin, GPIO.OUT)
 
     def turn_led(which: str, on: bool | None = None):
