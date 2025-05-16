@@ -23,7 +23,6 @@ except ModuleNotFoundError:
 
 
 MIN_DUTY = 25
-RADIUS = 48  # mm
 ALPHA_COEF = 1
 OMEGA_COEF = 0.5
 
@@ -42,7 +41,8 @@ class Movement:
 
             self.reversed = reversed
 
-            self.BETA_COEF = 1 / (RADIUS * math.sin(small_wheels_angle))
+            self.BETA_COEF = math.tan(self.small_wheels_angle) / (math.sin(small_wheels_angle))
+
             self.vector_a = np.array((math.sin(2 * math.pi - self.angle) * 1,
                                       math.cos(2 * math.pi - self.angle) * 1))
             self.vector_b = np.array((math.sin(2 * math.pi - self.angle + (math.pi / 2)) * 1,
@@ -106,7 +106,7 @@ class Movement:
                 if np.linalg.matrix_rank(A) == 2:
                     coeffs = np.linalg.solve(A, direction_vector)
                     alpha, beta = coeffs
-                    speed = alpha * ALPHA_COEF + beta * math.tan(motor.small_wheels_angle) * motor.BETA_COEF + omega
+                    speed = alpha * ALPHA_COEF + beta * motor.BETA_COEF + omega
                 else:
                     raise RuntimeError("programmer skill issue - Vectors a and b are linearly dependent or do not span v")
                 speeds.append(speed)
