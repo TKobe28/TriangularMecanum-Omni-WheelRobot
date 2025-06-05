@@ -1,4 +1,4 @@
-# Triangular Omni-Wheel Robot
+# Triangular Mecanum-Omni-Wheel Robot
 
 ## Overview
 
