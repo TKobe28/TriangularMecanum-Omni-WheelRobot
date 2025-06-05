@@ -51,6 +51,36 @@ coming soon (relatively to the age of ur mom hehee get burned lol ts never comin
 ---
 NOTE: IF YOU WANT TO MODIFY WIFI SETTINGS YOU SHOULD RUN THE SERVER AS ROOT - this usually means adding "sudo" before your commands (you should do that when installing dependencies too)
 
+### User Management
+
+#### Adding a New User
+
+To add a new user for authentication:
+
+1. Run the following command:
+   ```bash
+   python3 main/add_user.py
+   ```
+2. Follow the prompts:
+   - Enter a unique username.
+   - Enter a password (input is hidden).
+   - Enter the access level as an integer (lower numbers mean more access).
+
+The user information (username, hashed password, and access level) will be saved to `main/secret`.
+
+#### Removing a User
+
+To remove a user:
+
+1. Open the `main/secret` file in a text editor.
+2. Each user entry consists of three lines:
+    1. Username
+    2. Password hash
+    3. Access level
+3. Find the three lines corresponding to the user you want to remove and delete them.
+4. Save and close the file.
+
+
 ## Usage
 
 - run by running `./run.sh` or just by booting up the pi, if you set up systemd service in the installation 
